@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calisthenics Ascension Codex</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app-header">
+  <div class="app-eyebrow" id="eyebrow">Dashboard</div>
+  <div class="app-title">Calisthenics Ascension Codex</div>
+</div>
+
+<div class="nav">
+  <button class="nav-tab active" data-tab="dashboard" onclick="switchTab('dashboard')">Dashboard</button>
+  <button class="nav-tab" data-tab="log" onclick="switchTab('log')">Log</button>
+  <button class="nav-tab" data-tab="program" onclick="switchTab('program')">Program</button>
+</div>
+
+<div id="view"></div>
+
+<script src="skill-data.js"></script>
+<script src="tree-logic.js"></script>
+<script src="inscription-loop.js"></script>
+<script src="program.js"></script>
+<script src="achievement-engine.js"></script>
+<script src="celebration.js"></script>
+<script src="tree-view.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
