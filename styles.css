@@ -1,0 +1,293 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Marcellus&family=Germania+One&family=Noto+Sans+Runic&display=swap');
+
+/* ===== Theme tokens ===== */
+:root {
+  /* structural */
+  --bg: #16141c;
+  --bg-card: #211e2b;
+  --bg-card-2: #1c1924;
+  --border-heavy: #3a3448;
+  --border-light: rgba(255,255,255,0.05);
+  --text-primary: #ded4e8;
+  --text-secondary: #a89fb5;
+  --text-muted: #756d82;
+  --text-title: #e8dfc4;
+
+  /* zone colors */
+  --zone-nav: #6b5a94;       /* weathered violet */
+  --zone-log: #b8863c;       /* aged bronze/gold */
+  --zone-title: #b8b0c4;     /* pale platinum */
+  --zone-achieve: #4a9d6f;   /* vivid jade */
+  --zone-badge: #a8394a;     /* deep vermillion */
+
+  /* fonts */
+  --font-earned: 'Cinzel', serif;       /* Titles/Achievements/Badges headers */
+  --font-structural: 'Marcellus', serif; /* Dashboard/Log/Program headers */
+  --font-inscription: 'Germania One', serif; /* display-card inscription loop — readable data */
+  --font-runic: 'Noto Sans Runic', serif;    /* input-field inscription loop — genuine runes, decorative only */
+
+  /* inscription-loop fit handling */
+  --inscription-tracking-min: -0.02em;
+  --inscription-tracking-max: 0.18em;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  background-image:
+    radial-gradient(ellipse at 20% 0%, rgba(90, 70, 130, 0.10), transparent 55%),
+    radial-gradient(ellipse at 80% 100%, rgba(150, 110, 40, 0.06), transparent 55%);
+  color: var(--text-secondary);
+  font-family: var(--font-structural);
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding-bottom: 24px;
+}
+
+/* ===== App header ===== */
+.app-header { padding: 18px 18px 10px; }
+.app-eyebrow {
+  font-family: var(--font-structural);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.app-title {
+  font-family: var(--font-earned);
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--text-title);
+  letter-spacing: 0.005em;
+}
+
+/* ===== Nav — 3 tabs ===== */
+.nav {
+  display: flex;
+  gap: 8px;
+  padding: 10px 18px 18px;
+  border-bottom: 1px solid var(--border-heavy);
+}
+.nav-tab {
+  font-family: var(--font-structural);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  padding: 7px 14px;
+  border: 1px solid var(--border-heavy);
+  border-radius: 2px;
+  background: transparent;
+  cursor: pointer;
+}
+.nav-tab.active {
+  color: #b8a4d9;
+  border-color: var(--zone-nav);
+  background: rgba(107, 90, 148, 0.12);
+}
+
+/* ===== Section shell ===== */
+.section { padding: 20px 18px 4px; }
+.section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.section-title {
+  font-family: var(--font-structural);
+  font-size: 0.95rem;
+  letter-spacing: 0.06em;
+  color: var(--text-primary);
+}
+.section-title.earned {
+  font-family: var(--font-earned);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.section-link {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.03em;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+.card {
+  position: relative;
+  background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-card-2) 100%);
+  border: 1px solid var(--border-heavy);
+  border-left: 3px solid var(--accent, var(--zone-nav));
+  border-radius: 12px;
+  margin-bottom: 10px;
+  overflow: visible;
+}
+.card--log     { --accent: var(--zone-log); }
+.card--title   { --accent: var(--zone-title); }
+.card--achieve { --accent: var(--zone-achieve); }
+.card--badge   { --accent: var(--zone-badge); }
+
+.card-inscription {
+  font-family: var(--font-inscription);
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  color: var(--accent, var(--zone-nav));
+  opacity: 0.7;
+  padding: 5px 12px;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.card-inscription.top { border-bottom: 1px solid var(--border-light); }
+.card-inscription.bottom { border-top: 1px solid var(--border-light); }
+
+.inscription-loop-target {
+  position: absolute; inset: 0; pointer-events: none; z-index: 1;
+}
+.inscription-loop-svg { display: block; width: 100%; height: 100%; }
+
+.card-body { padding: 12px 14px; }
+
+.input-field-wrap {
+  position: relative;
+  border-radius: 10px;
+  overflow: visible;
+  margin-bottom: 10px;
+}
+.input-field-body { padding: 12px 14px; }
+.input-field-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+.input-field {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text-title);
+  font-family: var(--font-earned);
+  font-size: 1.1rem;
+  outline: none;
+}
+.input-field::placeholder {
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+/* ===== Dashboard components ===== */
+.log-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 6px 0; font-size: 0.88rem; color: var(--text-primary);
+}
+.log-cta {
+  display: block; width: 100%; margin-top: 10px;
+  font-family: var(--font-structural); font-size: 0.8rem; letter-spacing: 0.05em;
+  color: var(--bg); background: var(--zone-log);
+  padding: 10px; border: none; border-radius: 2px; cursor: pointer;
+}
+
+.week-strip { display: flex; gap: 4px; padding: 4px 0; }
+.day {
+  flex: 1; text-align: center; padding: 8px 2px;
+  border: 1px solid var(--border-heavy); border-radius: 2px;
+  font-size: 0.68rem; color: var(--text-muted);
+}
+.day .d-label { font-size: 0.62rem; letter-spacing: 0.04em; margin-bottom: 4px; }
+.day .d-num { font-family: var(--font-earned); font-size: 0.9rem; color: var(--text-secondary); }
+.day.logged { border-color: var(--zone-achieve); background: rgba(74,157,111,0.08); }
+.day.logged .d-num { color: #6cc99a; }
+.day.today { border-color: var(--zone-log); border-width: 2px; }
+.day.amrap { background: rgba(168,57,74,0.12); border-color: var(--zone-badge); }
+.day.amrap .d-num { color: #d97b8a; }
+
+.max-grid { display: flex; gap: 10px; }
+.max-card { flex: 1; text-align: center; padding: 10px 8px; }
+.max-num { font-family: var(--font-earned); font-weight: 700; font-size: 1.8rem; color: var(--text-title); line-height: 1; }
+.max-label { font-size: 0.68rem; color: var(--text-secondary); letter-spacing: 0.05em; margin-top: 4px; }
+
+.earned-row { padding: 8px 0; font-size: 0.85rem; color: var(--text-primary); }
+.text-muted { color: var(--text-muted); font-size: 0.7rem; }
+
+/* ===== Tree browser ===== */
+.cat-tabs {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;
+}
+.cat-tab {
+  font-family: var(--font-structural); font-size: 0.72rem; letter-spacing: 0.03em;
+  color: var(--text-muted); background: transparent;
+  border: 1px solid var(--border-heavy); border-radius: 2px;
+  padding: 5px 10px; cursor: pointer;
+}
+.cat-tab.active { color: var(--zone-nav); border-color: var(--zone-nav); background: rgba(107,90,148,0.1); }
+
+.branch-group { margin-bottom: 14px; }
+.branch-label {
+  font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--text-muted); margin-bottom: 6px;
+}
+.skill-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 12px; margin-bottom: 6px;
+  border: 1px solid var(--border-heavy); border-radius: 2px;
+  cursor: pointer; background: var(--bg-card);
+}
+.skill-row.unlocked { border-color: var(--zone-achieve); }
+.skill-row.close { border-color: var(--zone-log); }
+.skill-row.sealed {
+  justify-content: center; gap: 10px;
+  border-style: dashed; opacity: 0.55;
+}
+.skill-name { font-size: 0.85rem; color: var(--text-primary); }
+.skill-tier { font-family: var(--font-earned); font-size: 0.72rem; color: var(--zone-title); letter-spacing: 0.04em; }
+.skill-tier.muted { color: var(--text-muted); font-family: var(--font-structural); }
+.skill-silhouette {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 1px solid var(--text-muted); display: flex; align-items: center; justify-content: center;
+  color: var(--text-muted); font-size: 0.75rem;
+}
+.skill-sealed-text { font-size: 0.78rem; color: var(--text-muted); letter-spacing: 0.05em; }
+
+.panzoom-controls { display: flex; gap: 8px; margin-bottom: 8px; }
+.panzoom-controls button {
+  font-family: var(--font-structural); font-size: 0.8rem;
+  background: var(--bg-card); color: var(--text-secondary);
+  border: 1px solid var(--border-heavy); border-radius: 2px;
+  padding: 6px 12px; cursor: pointer;
+}
+.panzoom-viewport {
+  width: 100%; height: 420px; overflow: hidden; position: relative;
+  border: 1px solid var(--border-heavy); border-radius: 2px;
+  background: var(--bg-card-2); touch-action: none; cursor: grab;
+}
+.panzoom-canvas {
+  position: absolute; left: 50%; top: 30px; width: 0; height: 0;
+  transform-origin: 0 0;
+}
+.tree-node {
+  position: absolute;
+  transform: translateX(-50%);
+  width: 80px; padding: 8px 6px; text-align: center;
+  font-size: 0.68rem; color: var(--text-primary);
+  border: 1px solid var(--border-heavy); border-radius: 2px;
+  background: var(--bg-card); cursor: pointer;
+}
+.tree-node.unlocked { border-color: var(--zone-achieve); }
+.tree-node.close { border-color: var(--zone-log); }
+.tree-node.sealed { border-style: dashed; opacity: 0.5; color: var(--text-muted); }
+
+.popup-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+  display: flex; align-items: flex-end; justify-content: center;
+  z-index: 100;
+}
+.popup-card {
+  position: relative;
+  width: 100%; max-width: 480
