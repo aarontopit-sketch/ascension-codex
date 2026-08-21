@@ -39,7 +39,6 @@ function celebrateAchievements(achievements) {
   if (pendingCelebrationTimer) clearTimeout(pendingCelebrationTimer);
   pendingCelebrationTimer = setTimeout(flushCelebrationQueue, CELEBRATION_BATCH_WINDOW_MS);
 }
-
 // Exposed separately (not just the setTimeout callback) so it can be
 // triggered directly — e.g. for testing, or if the app later wants a
 // "show me now" affordance rather than waiting out the window.
