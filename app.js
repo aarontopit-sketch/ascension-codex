@@ -147,7 +147,7 @@ function renderDashboard() {
   const achieveEntries = earned.filter(a => a.zone === "achieve" || a.zone === "title").slice(-5).reverse();
   const badgeEntries = earned.filter(a => a.zone === "badge").slice(-5).reverse();
 
-  const achievementsCard = renderCard({
+    const achievementsCard = renderCard({
     zoneClass: "card--achieve",
     zoneColorVar: "--zone-achieve",
     inscription: achieveEntries.length ? [...new Set(achieveEntries.map(a => a.runeConcept.toUpperCase()))].join(" · ") : "NOTHING EARNED YET",
@@ -162,7 +162,9 @@ function renderDashboard() {
     inscription: badgeEntries.length ? [...new Set(badgeEntries.map(a => a.runeConcept.toUpperCase()))].join(" · ") : "NOTHING EARNED YET",
     bodyHtml: badgeEntries.length
       ? badgeEntries.map(a => `<div class="earned-row"><b>${a.title}</b><br><span class="text-muted">${a.description}</span></div>`).join("")
+      : `<div class="earned-row" style="color:var(--text-muted);">No badges yet — these come from form-checked holds at badge tier.</div>`
   });
+
 
   const todayScheduled = todaysScheduledSession();
   return `
