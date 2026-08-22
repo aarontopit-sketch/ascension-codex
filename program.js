@@ -48,7 +48,8 @@ const ACTIVE_PROGRAM = {
       description: [
         "Build to 1 hard top set (RPE 8) on pull-ups, then pike push-ups",
         "3-4 total sets each, ~3 min rest",
-        "Every 2nd Friday: true AMRAP retest on both, after warm-up sets"
+                "AMRAP retest: deload-week Fridays only (every 4th week), after warm-up sets — not a fixed biweekly schedule"
+
       ],
       targetFormula: "top working set = AMRAP − 1"
     }
