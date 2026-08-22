@@ -148,6 +148,7 @@ body {
 .card-inscription.top { border-bottom: 1px solid var(--border-light); }
 .card-inscription.bottom { border-top: 1px solid var(--border-light); }
 
+/* ===== True text-on-a-path inscription loop ===== */
 .inscription-loop-target {
   position: absolute; inset: 0; pointer-events: none; z-index: 1;
 }
@@ -155,9 +156,12 @@ body {
 
 .card-body { padding: 12px 14px; }
 
+/* Input fields: entire border IS the inscription loop (drawn by the SVG
+   path's own stroke, per inscription-loop.js), no separate CSS border
+   or accent bar underneath. */
 .input-field-wrap {
   position: relative;
-  border-radius: 10px;
+  border-radius: 10px; /* matches the inscription path's own corner radius */
   overflow: visible;
   margin-bottom: 10px;
 }
@@ -255,6 +259,7 @@ body {
 }
 .skill-sealed-text { font-size: 0.78rem; color: var(--text-muted); letter-spacing: 0.05em; }
 
+/* pan-zoom */
 .panzoom-controls { display: flex; gap: 8px; margin-bottom: 8px; }
 .panzoom-controls button {
   font-family: var(--font-structural); font-size: 0.8rem;
@@ -283,6 +288,7 @@ body {
 .tree-node.close { border-color: var(--zone-log); }
 .tree-node.sealed { border-style: dashed; opacity: 0.5; color: var(--text-muted); }
 
+/* popup */
 .popup-overlay {
   position: fixed; inset: 0; background: rgba(0,0,0,0.6);
   display: flex; align-items: flex-end; justify-content: center;
@@ -290,4 +296,121 @@ body {
 }
 .popup-card {
   position: relative;
-  width: 100%; max-width: 480
+  width: 100%; max-width: 480px;
+  background: var(--bg-card); border: 1px solid var(--border-heavy);
+  border-top: 3px solid var(--zone-nav);
+  border-radius: 8px 8px 0 0;
+  max-height: 70vh; overflow-y: auto;
+}
+.popup-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 16px; border-bottom: 1px solid var(--border-heavy);
+}
+.popup-title { font-family: var(--font-earned); font-size: 1rem; color: var(--text-title); }
+.popup-close {
+  background: none; border: none; color: var(--text-muted);
+  font-size: 1.4rem; cursor: pointer; line-height: 1;
+}
+.popup-body { padding: 14px 16px; }
+.popup-meta { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px; }
+.popup-tier { font-family: var(--font-earned); font-size: 0.85rem; color: var(--zone-title); margin-bottom: 10px; }
+.popup-note { font-size: 0.82rem; color: var(--text-secondary); }
+.popup-subhead { font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); margin: 12px 0 6px; }
+.prereq-row {
+  padding: 8px 0; border-bottom: 1px solid var(--border-light);
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
+  font-size: 0.82rem; color: var(--text-primary);
+}
+.prereq-row.met .prereq-status { color: var(--zone-achieve); }
+.prereq-row.unmet .prereq-status { color: var(--text-muted); }
+.rawstat-quicklog {
+  width: 100%; display: flex; gap: 6px; margin-top: 6px;
+}
+.rawstat-quicklog input {
+  flex: 1; background: var(--bg-card-2); border: 1px solid var(--border-heavy);
+  color: var(--text-primary); border-radius: 2px; padding: 6px 8px; font-size: 0.8rem;
+}
+.rawstat-quicklog button {
+  background: var(--zone-log); color: var(--bg); border: none; border-radius: 2px;
+  padding: 6px 10px; font-size: 0.75rem; cursor: pointer;
+}
+.checklist-row { padding: 10px 0; border-bottom: 1px solid var(--border-light); }
+.checklist-label { font-size: 0.82rem; color: var(--text-primary); margin-bottom: 6px; }
+.checklist-options { display: flex; gap: 14px; font-size: 0.75rem; color: var(--text-secondary); }
+.checklist-options label { display: flex; align-items: center; gap: 4px; cursor: pointer; }
+.log-cta[disabled] { opacity: 0.4; cursor: not-allowed; }
+
+/* ===== Fatigue selector ===== */
+.fatigue-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.fatigue-label { font-size: 0.8rem; color: var(--text-secondary); }
+.fatigue-btn {
+  font-family: var(--font-structural); font-size: 0.78rem;
+  background: transparent; color: var(--text-muted);
+  border: 1px solid var(--border-heavy); border-radius: 2px;
+  padding: 5px 12px; cursor: pointer;
+}
+.fatigue-btn.active { color: var(--zone-badge); border-color: var(--zone-badge); background: rgba(168,57,74,0.1); }
+.fatigue-note {
+  font-size: 0.76rem; color: var(--zone-badge); background: rgba(168,57,74,0.08);
+  border-left: 2px solid var(--zone-badge); padding: 6px 10px; margin-bottom: 10px; line-height: 1.4;
+}
+
+/* ===== Round breakdown ===== */
+.breakdown-toggle {
+  display: block; width: 100%; text-align: left;
+  font-family: var(--font-structural); font-size: 0.78rem; color: var(--zone-log);
+  background: none; border: none; padding: 4px 0 10px; cursor: pointer;
+}
+.breakdown-block { margin-bottom: 12px; }
+.breakdown-label { font-size: 0.72rem; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; }
+.breakdown-input {
+  background: var(--bg-card-2); border: 1px solid var(--border-heavy); color: var(--text-primary);
+  border-radius: 2px; padding: 6px 8px; font-size: 0.85rem; width: 100%; margin-bottom: 4px;
+}
+.breakdown-round-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.breakdown-round-num { font-size: 0.7rem; color: var(--text-muted); width: 22px; flex-shrink: 0; }
+.input-field[readonly] { color: var(--text-secondary); }
+
+/* ===== Celebration toast/modal ===== */
+.celebration-toast {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px);
+  max-width: 340px; width: calc(100% - 36px);
+  background: var(--bg-card); border: 1px solid var(--zone-achieve);
+  color: var(--text-primary); font-size: 0.8rem; line-height: 1.4;
+  padding: 12px 14px; border-radius: 4px;
+  opacity: 0; transition: opacity 0.3s, transform 0.3s;
+  z-index: 200;
+}
+.celebration-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+.celebration-card { border-top-width: 3px; }
+.celebration-item {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 12px 10px; margin-bottom: 6px;
+  border-bottom: 1px solid var(--border-light);
+}
+.celebration-rune {
+  font-family: var(--font-runic); font-size: 1.4rem;
+  width: 36px; text-align: center; flex-shrink: 0;
+}
+/* Jera (ᛃ) — the Title-zone rune — renders visually smaller than the
+   others in Noto Sans Runic at the same font-size, a glyph-proportion
+   quirk of that font rather than anything in our own CSS. Bumped up
+   specifically so it reads at the same visual weight as the rest. */
+.rune-jera { font-size: 1.85rem; }
+.celebration-zone-tag {
+  font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase;
+  margin-bottom: 2px;
+}
+.celebration-title { font-family: var(--font-earned); font-size: 0.9rem; color: var(--text-title); }
+.celebration-desc { font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px; }
+.stat-num {
+  font-family: var(--font-earned);
+  font-weight: 700;
+  color: var(--text-title);
+}
+.tier-word {
+  font-family: var(--font-earned);
+  letter-spacing: 0.08em;
+  color: var(--zone-title);
+}
