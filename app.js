@@ -109,20 +109,26 @@ function renderDashboard() {
     `
   });
 
+    const weekDates = getWeekStripDates();
+  const dayLabels = ["M","T","W","T","F","S","S"];
+  const todayKey = dayKey(new Date());
   const weekStrip = `
     <div class="week-strip">
-      ${["M","T","W","T","F","S","S"].map((d,i) => {
-        const dayNum = 18 + i;
-        const isToday = i === 2;
-        const isAmrap = i === 4;
-        const isLogged = i < 2;
+      ${weekDates.map((d, i) => {
+        const dayNum = d.getDate();
+        const thisDayKey = dayKey(d);
+        const isToday = thisDayKey === todayKey;
+        const isLogged = !!(state.completedDays && state.completedDays[thisDayKey]);
+        const isFriday = d.getDay() === 5;
+        const isAmrap = isFriday && isDeloadWeekForDate(d);
         let cls = "day";
         if (isLogged) cls += " logged";
         if (isToday) cls += " today";
         if (isAmrap) cls += " amrap";
-        return `<div class="${cls}"><div class="d-label">${d}</div><div class="d-num">${dayNum}</div></div>`;
+        return `<div class="${cls}"><div class="d-label">${dayLabels[i]}</div><div class="d-num">${dayNum}</div></div>`;
       }).join("")}
     </div>`;
+
 
   const currentMaxCard = renderCard({
     zoneClass: "card--title",
@@ -216,6 +222,27 @@ function applyFatigueAdjustment(scheduled, targetPull, targetPike) {
     return { effectiveKey: "A", effectiveLabel: "Volume (swapped, light)", targetPull: Math.floor(targetPull * 0.6), targetPike: Math.floor(targetPike * 0.6), swapped: true, regulated: true };
   }
   return { effectiveKey: scheduled.key, effectiveLabel: scheduled.label + " (Regulation)", targetPull: Math.floor(targetPull * 0.6), targetPike: Math.floor(targetPike * 0.6), swapped: false, regulated: true };
+}
+function isDeloadWeekForDate(date) {
+  if (!state.programStartDate) return false;
+  const daysIn = Math.floor((date - new Date(state.programStartDate)) / 86400000);
+  const weekNum = Math.min(Math.floor(Math.max(daysIn, 0) / 7) + 1, 4);
+  return weekNum === 4;
+}
+
+function getWeekStripDates() {
+  const today = new Date();
+  const dayOfWeek = today.getDay(); // 0=Sun,1=Mon,...6=Sat
+  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  const monday = new Date(today);
+  monday.setDate(today.getDate() + mondayOffset);
+  const dates = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    dates.push(d);
+  }
+  return dates;
 }
 
 function scheduledSessionForDate(date) {
