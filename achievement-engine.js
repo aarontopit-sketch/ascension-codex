@@ -53,7 +53,6 @@ function removeSkillHistoryBySessionId(sessionId) {
     state.skillLogHistory[skillId] = state.skillLogHistory[skillId].filter(h => h.sourceSessionId !== sessionId);
   });
 }
-
 // Evaluates one log submission and returns the batch of achievements it
 // fired, per the "batch everything from one entry into one modal" rule.
 function evaluateLogEntry(skillId, newValue, previousValue, entryTimestamp) {
@@ -124,6 +123,15 @@ function tierForValue(value, skill) {
   return found;
 }
 
+// Comeback-PR: requires a genuine plateau/dip, not just one noisy lower
+// reading. True if there's a historical peak, at least 2 of the 3 most
+// recent entries before this one sat below that peak (a sustained dip
+// rather than a single off day), and this new value now exceeds it.
+//
+// Note: recordLogHistory() is called before this function runs, so the
+// current entry is already the last item in hist — it must be excluded
+// from both the peak calculation and the "recent entries" window, or the
+// check becomes self-referential (comparing the new value against itself).
 // Comeback-PR: requires a genuine plateau/dip, not just one noisy lower
 // reading. True if there's a historical peak, at least 2 of the 3 most
 // recent entries before this one sat below that peak (a sustained dip
