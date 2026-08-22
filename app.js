@@ -648,7 +648,7 @@ function saveSessionEditor(sessionId) {
   const entryDate = new Date(dateStr + "T12:00:00"); // noon, avoids timezone-boundary day-shift issues
 
   const isNew = historyUIState.isNew;
-  const id = isNew ? generateSessionId() : sessionId;
+  
   const id = isNew ? generateSessionId() : sessionId;
   const pullBreakdown = historyUIState.showBreakdown ? Array.from(document.querySelectorAll('[data-ebd="pull"]')).map(el => parseInt(el.value, 10) || 0) : null;
   const pikeBreakdown = historyUIState.showBreakdown ? Array.from(document.querySelectorAll('[data-ebd="pike"]')).map(el => parseInt(el.value, 10) || 0) : null;
