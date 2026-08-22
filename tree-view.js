@@ -80,10 +80,12 @@ function renderSkillRow(skill) {
 }
 
 // ===== PAN-ZOOM (Balance) =====
+// Simple layout: root centered top, branches fan out by depth using each
+// skill's prerequisite chain length as a rough depth proxy.
 function skillDepth(skill, seen) {
   seen = seen || new Set();
   if (skill.isRoot) return 0;
-  if (seen.has(skill.id)) return 1;
+  if (seen.has(skill.id)) return 1; // cycle guard
   seen.add(skill.id);
   const skillPrereqs = skill.prerequisites.filter(p => p.type === "skill");
   if (skillPrereqs.length === 0) return 1;
@@ -221,4 +223,187 @@ function renderStatusStep(skill) {
           <button class="popup-close" onclick="closeSkillPopup()">×</button>
         </div>
         <div class="popup-body">
-          
+          <div class="popup-meta">${skill.category}${skill.branch ? " · " + skill.branch : ""}</div>
+          ${tier ? `<div class="popup-tier">Current: ${ASCENSION_TITLES[tier]} (${tier})</div>` : ""}
+
+          ${skill.prerequisites.length === 0 ? `<div class="popup-note">No prerequisites — this is a root skill.</div>` : `
+            <div class="popup-subhead">Prerequisites</div>
+            ${prereqStatuses.map(p => `
+              <div class="prereq-row ${p.met ? 'met' : 'unmet'}">
+                <span>${p.label}</span>
+                <span class="prereq-status">
+                  ${p.met ? "✓ met" : `${p.current}/${p.required} ${p.unit}`}
+                </span>
+                ${!p.met && p.type === "stat" ? `
+                  <div class="rawstat-quicklog">
+                    <input type="number" inputmode="numeric" placeholder="log ${p.label}" id="rawstat-${skillId}-${p.label.replace(/[^a-zA-Z0-9]/g,'')}">
+                    <button onclick="logRawStat('${skillId}', '${p.label.replace(/'/g, "\\'")}', document.getElementById('rawstat-${skillId}-${p.label.replace(/[^a-zA-Z0-9]/g,'')}').value)">Log</button>
+                  </div>
+                ` : ""}
+                ${!p.met && p.type === "stat-resolved-to-skill" ? `
+                  <div class="popup-note" style="margin-top:4px;">Tracked skill — log it from the Skill Tree or Log tab directly.</div>
+                ` : ""}
+              </div>
+            `).join("")}
+          `}
+
+          ${skill.ladder ? `
+            <button class="log-cta" style="margin-top:14px;" ${canLog ? "" : "disabled"}
+              onclick="${canLog ? `startLogStep('${skillId}')` : ""}">
+              ${canLog ? "Log progress →" : "Meet prerequisites to log"}
+            </button>
+          ` : `<div class="popup-note" style="margin-top:10px;">No numeric ladder — checklist/binary skill, not logged here yet.</div>`}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function startLogStep(skillId) {
+  treeState.popupStep = "log";
+  refreshPopup();
+}
+
+function renderLogStep(skill) {
+  const unit = skill.ladder[0].unit;
+  const isSeconds = unit === "seconds";
+  return `
+    <div class="popup-overlay" id="skill-popup-root" onclick="if(event.target===this) closeSkillPopup()">
+      <div class="popup-card">
+        <div class="popup-header">
+          <div class="popup-title">Log ${skill.name}</div>
+          <button class="popup-close" onclick="closeSkillPopup()">×</button>
+        </div>
+        <div class="popup-body">
+          <div class="input-field-wrap" style="margin-top:4px;">
+            <div class="input-field-body">
+              <div class="input-field-label">${unit === "reps" ? "Reps" : unit === "seconds" ? "Seconds" : unit === "feet" ? "Feet" : "Degrees"}</div>
+              <input class="input-field" type="number" inputmode="numeric" id="log-value-input" placeholder="0">
+              ${isSeconds ? `<div class="popup-note" id="log-value-preview" style="margin-top:4px;"></div>` : ""}
+            </div>
+            <div class="inscription-loop-target" data-inscription-text="${RUNIC_PHRASES.newEntry}" data-inscription-color="--zone-log" data-inscription-draw-border="true"></div>
+          </div>
+          <button class="log-cta" onclick="submitSkillLog('${skill.id}')">Save</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// Attaches the M:SS live-preview listener after the log form is in the DOM.
+// Kept as a real JS function call, not an inline script element embedded
+// as a string — a script-tag string inside a template literal breaks once
+// this file is concatenated into one bundled script block, since the HTML
+// parser closes the OUTER script block at the first literal closing script
+// tag it finds anywhere in the text, regardless of JS string/comment context.
+function attachLogFormListeners(skill) {
+  if (skill.ladder[0].unit !== "seconds") return;
+  const input = document.getElementById("log-value-input");
+  const preview = document.getElementById("log-value-preview");
+  if (!input || !preview) return;
+  input.addEventListener("input", function () {
+    const v = parseInt(this.value, 10);
+    preview.textContent = (!isNaN(v) && v >= 60) ? "Displays as " + formatSecondsValue(v) : "";
+  });
+}
+
+function submitSkillLog(skillId) {
+  const input = document.getElementById("log-value-input");
+  const val = parseInt(input.value, 10);
+  if (isNaN(val) || val < 0) return; // basic validation, matches toWholeRep() convention
+  const skill = SKILLS_BY_ID[skillId];
+  const previousValue = getSkillCurrentValue(skillId);
+  state.skillLogs[skillId] = Math.max(previousValue, val);
+  recordLogHistory(skillId, val);
+  markDayCompleted();
+
+  const achievements = evaluateLogEntry(skillId, state.skillLogs[skillId], previousValue);
+  const blockCompletion = checkBlockCompletion();
+  if (blockCompletion) achievements.push(blockCompletion);
+
+  // Only prompt the badge form check if this log actually reached the
+  // badge's own tier threshold — badge-eligible skills can be logged at
+  // any point on their ladder, and a 5-second Regular Handstand (badge
+  // tier 10) shouldn't ask for a form check it isn't eligible for yet.
+  if (skill.badgeRule && val >= skill.badgeRule.tier) {
+    treeState.pendingLogValue = val;
+    treeState.pendingAchievements = achievements;
+    treeState.popupStep = "badge-checklist";
+    refreshPopup();
+  } else {
+    closeSkillPopup();
+    rerenderView();
+    celebrateAchievements(achievements);
+    saveState();
+  }
+}
+
+function renderBadgeChecklistStep(skill) {
+  const checkpoints = skill.formCheckpoints || [];
+  return `
+    <div class="popup-overlay" id="skill-popup-root" onclick="if(event.target===this) closeSkillPopup()">
+      <div class="popup-card">
+        <div class="popup-header">
+          <div class="popup-title">Form Check — ${skill.name}</div>
+          <button class="popup-close" onclick="closeSkillPopup()">×</button>
+        </div>
+        <div class="popup-body">
+          <div class="popup-note">Badge-eligible skill — rate each checkpoint before saving.</div>
+          ${checkpoints.map((cp, i) => `
+            <div class="checklist-row">
+              <div class="checklist-label">${cp}</div>
+              <div class="checklist-options">
+                <label><input type="radio" name="cp-${i}" value="None" checked> None</label>
+                <label><input type="radio" name="cp-${i}" value="Minor"> Minor</label>
+                <label><input type="radio" name="cp-${i}" value="Major"> Major</label>
+              </div>
+            </div>
+          `).join("")}
+          <button class="log-cta" style="margin-top:14px;" onclick="submitBadgeChecklist('${skill.id}', ${checkpoints.length})">Save form check</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function submitBadgeChecklist(skillId, count) {
+  // worst-fault rule: Major > Minor > None
+  const severity = { "None": 0, "Minor": 1, "Major": 2 };
+  let worst = "None";
+  for (let i = 0; i < count; i++) {
+    const checked = document.querySelector(`input[name="cp-${i}"]:checked`);
+    if (checked && severity[checked.value] > severity[worst]) worst = checked.value;
+  }
+  const skill = SKILLS_BY_ID[skillId];
+  const result = recordBadgeAttempt(skillId, worst);
+
+  const achievements = (treeState.pendingAchievements || []).slice();
+  // Real upgrade rule: a new badge achievement only fires on the first
+  // attempt, or when this attempt's form beats every prior recorded
+  // attempt for this skill. A same-or-worse repeat still saves to
+  // history (so nothing is lost) but doesn't fire its own celebration —
+  // and critically, the earlier better attempt's achievement record is
+  // never touched or removed.
+  if (result.isFirst || result.isUpgrade) {
+    achievements.push({
+      rare: true, zone: "badge",
+      rune: "Thurisaz", runeConcept: "Power",
+      title: result.isFirst ? `Badge Earned — ${skill.name}` : `Badge Upgraded — ${skill.name}`,
+      description: `Worst fault: ${worst}`
+    });
+  }
+
+  closeSkillPopup();
+  rerenderView();
+  celebrateAchievements(achievements);
+  saveState();
+}
+
+function logRawStat(skillId, label, value) {
+  const v = parseFloat(value);
+  if (!isNaN(v)) {
+    state.rawStatLogs[label] = Math.max(getRawStatCurrentValue(label), v);
+  }
+  refreshPopup();
+  saveState();
+}
