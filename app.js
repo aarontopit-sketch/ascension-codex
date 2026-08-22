@@ -179,7 +179,8 @@ function renderDashboard() {
       ${todayLogCard}
     </div>
     <div class="section">
-      <div class="section-header"><div class="section-title">This Week</div><button class="section-link">View full history</button></div>
+      <div class="section-header"><div class="section-title">This Week</div><button class="section-link" onclick="openHistory()">View full history</button>
+</div>
       ${weekStrip}
     </div>
     <div class="section">
